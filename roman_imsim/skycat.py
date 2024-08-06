@@ -165,6 +165,37 @@ class SkyCatalogInterface:
         if np.isnan(flux):
             return None
 
+        import astropy.units as u
+        from astropy.coordinates import SkyCoord
+        sncoord = SkyCoord(7.551093401915147*u.deg, -44.80718106491529*u.deg, frame='icrs')
+        coord = SkyCoord(skycat_obj.ra*u.deg, skycat_obj.dec*u.deg, frame='icrs')
+        sep = sncoord.separation(coord)
+        if "galaxy" in skycat_obj.object_type and sep.arcsec < 25:
+            flux = 0
+            
+        flat_coord = SkyCoord(7.5051050*u.deg, -44.7755183*u.deg, frame='icrs')
+        flat_sed = galsim.SED(spec='200', flux_type='flambda', wave_type='nanometers')
+        sep = flat_coord.separation(coord)
+        if sep.arcsec < 5:
+            gs_object = galsim.Gaussian(sigma=0.1) * flat_sed
+            gs_object.object_type = "galaxy"
+            self.logger.warning(f"Setting flat SED to object of {index=}")
+            return gs_object    
+        elif sep.arcsec < 25:
+            flux = 0
+           
+        emission_coord = SkyCoord(7.4493881*u.deg, -44.8047425*u.deg, frame='icrs')
+        sep = emission_coord.separation(coord)
+        if sep.arcsec < 4:
+            emission_sed = flat_sed + galsim.EmissionLine(wavelength=1500, flux=1000.)
+            gs_object = galsim.Gaussian(sigma=0.1) * emission_sed
+            gs_object.object_type = "galaxy"
+            self.logger.warning(f"Setting Emission line to object of {index=}")
+            return gs_object  
+        elif sep.arcsec < 25:
+            flux = 0
+            
+        
         # if True and skycat_obj.object_type == 'galaxy':
         #     # Apply DC2 dilation to the individual galaxy components.
         #     for component, gsobj in gsobjs.items():

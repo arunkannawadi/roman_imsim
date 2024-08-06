@@ -205,6 +205,7 @@ class RomanSCAImageBuilder(ScatteredImageBuilder):
         base['current_noise_image'] = base['current_image']
         wcs = base['wcs']
         bp = base['bandpass']
+        logger.info("Got bandpass as %s", bp)
         rng = galsim.config.GetRNG(config, base)
         logger.info('image %d: Start RomanSCA detector effects',base.get('image_num',0))
 
@@ -212,7 +213,7 @@ class RomanSCAImageBuilder(ScatteredImageBuilder):
         # value added to sky_image.  So technically, this includes things that aren't just sky.
         # E.g. includes dark_current and thermal backgrounds.
         sky_image = image.copy()
-        sky_level = roman.getSkyLevel(bp, world_pos=wcs.toWorld(image.true_center))
+        sky_level = 0.1  # roman.getSkyLevel(bp, world_pos=wcs.toWorld(image.true_center))
         logger.debug('Adding sky_level = %s',sky_level)
         if self.stray_light:
             logger.debug('Stray light fraction = %s',stray_light_fraction)

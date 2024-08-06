@@ -338,12 +338,19 @@ class Roman_stamp(StampBuilder):
             # print('-------- psf ----------',psfs)
 
             # print('stamp draw3a',process.memory_info().rss)
+            yank_factor = 1.
+            if gal.sed._const:
+                yank_factor = 1000.
+                
+            gal *= yank_factor
+            image *= yank_factor
+            
             gal.drawImage(bandpass,
                           method='phot',
                           offset=offset,
                           rng=self.rng,
                           maxN=maxN,
-                          n_photons=self.realized_flux,
+                          n_photons=self.realized_flux*yank_factor,
                           image=image,
                           photon_ops=photon_ops,
                           sensor=None,
@@ -351,6 +358,8 @@ class Roman_stamp(StampBuilder):
                           poisson_flux=False)
         # print('stamp draw3',process.memory_info().rss)
 
+            image /= yank_factor
+                
         return image
 
 # Pick the right function to be _fix_seds.

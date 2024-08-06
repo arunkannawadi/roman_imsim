@@ -626,7 +626,10 @@ class modify_image(object):
 
         # This image is in units of e-/pix. Finally we add the expected thermal backgrounds in this
         # band. These are provided in e-/pix/s, so we have to multiply by the exposure time.
-        self.sky += roman.thermal_backgrounds[pointing.filter]*roman.exptime
+        try:
+            self.sky += roman.thermal_backgrounds[pointing.filter]*roman.exptime
+        except KeyError:
+            print("Not accounting for ", pointing.filter)
 
         # Median of dark current is used here instead of mean since hot pixels contribute significantly to the mean.
         # Stastistics of dark current for the current test detector file: (mean, std, median, max) ~ (35, 3050, 0.008, 1.2E6)  (e-/p)
